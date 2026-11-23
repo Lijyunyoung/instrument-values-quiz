@@ -1,0 +1,1498 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>你是哪一種樂器？價值觀類型量表</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Noto Serif TC & Noto Sans TC -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@500;700;900&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            midnight: {
+              950: '#090E1A',
+              900: '#0E1525',
+              800: '#162038',
+              700: '#1F2D4D',
+            },
+            parchment: {
+              50: '#FAF6EE',
+              100: '#F5EFE2',
+              200: '#EAE0CC',
+              300: '#D8C9AC',
+            },
+            gold: {
+              300: '#E8C988',
+              400: '#D6B16A',
+              500: '#C89D54',
+              600: '#A47D3B',
+            },
+            burgundy: {
+              800: '#541B26',
+              900: '#360F17',
+            }
+          },
+          fontFamily: {
+            serif: ['"Noto Serif TC"', 'serif'],
+            sans: ['"Noto Sans TC"', 'sans-serif'],
+            display: ['"Cinzel"', '"Noto Serif TC"', 'serif'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      background-color: #0E1525;
+      background-image: 
+        radial-gradient(circle at 50% 0%, rgba(200, 157, 84, 0.16) 0%, transparent 55%),
+        radial-gradient(circle at 85% 90%, rgba(84, 27, 38, 0.25) 0%, transparent 50%);
+      color: #FAF6EE;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* 細膩五線譜背景紋理 */
+    .staff-pattern {
+      background-image: repeating-linear-gradient(
+        to bottom,
+        transparent,
+        transparent 11px,
+        rgba(200, 157, 84, 0.06) 12px
+      );
+    }
+
+    /* 羊皮紙質感卡片 (#FAF6EE) */
+    .parchment-card {
+      background: linear-gradient(155deg, #FAF6EE 0%, #F2E9D8 100%);
+      color: #1A1815;
+      box-shadow: 0 22px 55px rgba(0, 0, 0, 0.55), inset 0 0 0 1px rgba(200, 157, 84, 0.5);
+    }
+
+    /* 絲絨午夜藍卡片 (#0E1525) */
+    .velvet-card {
+      background: linear-gradient(160deg, rgba(22, 32, 56, 0.94) 0%, rgba(14, 21, 37, 0.97) 100%);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(200, 157, 84, 0.28);
+      box-shadow: 0 20px 45px rgba(0, 0, 0, 0.45);
+    }
+
+    /* 選項卡片互動效果 */
+    .option-card {
+      transition: all 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .option-card:hover {
+      transform: translateY(-3px);
+      border-color: #E2BE63;
+      background: linear-gradient(145deg, rgba(30, 42, 68, 0.98), rgba(21, 30, 50, 0.98));
+      box-shadow: 0 12px 28px rgba(201, 158, 61, 0.18);
+    }
+    .option-card:active {
+      transform: scale(0.985);
+    }
+    .option-card.selected {
+      border-color: #F3D98B;
+      background: linear-gradient(145deg, rgba(201, 158, 61, 0.24), rgba(30, 42, 68, 0.98));
+      box-shadow: 0 0 0 2px rgba(243, 217, 139, 0.45), 0 12px 28px rgba(201, 158, 61, 0.25);
+    }
+
+    /* 淡入上浮動畫 */
+    @keyframes fadeSlideUp {
+      from {
+        opacity: 0;
+        transform: translateY(14px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    .animate-enter {
+      animation: fadeSlideUp 0.45s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+
+    /* 音波跳動動畫 */
+    @keyframes soundWave {
+      0%, 100% { transform: scaleY(0.35); }
+      50% { transform: scaleY(1); }
+    }
+    .wave-bar {
+      animation: soundWave 0.65s ease-in-out infinite;
+    }
+    .wave-bar:nth-child(2) { animation-delay: 0.15s; }
+    .wave-bar:nth-child(3) { animation-delay: 0.3s; }
+    .wave-bar:nth-child(4) { animation-delay: 0.1s; }
+
+    /* 自訂捲軸 */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0D1321;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #2C3B59;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #C99E3D;
+    }
+  </style>
+</head>
+<body class="font-sans antialiased selection:bg-gold-500 selection:text-midnight-950 flex flex-col">
+
+  <!-- 頂部音樂廳導覽列 -->
+  <header class="w-full border-b border-gold-500/20 bg-midnight-950/80 backdrop-blur-md sticky top-0 z-30">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+      <button onclick="goHome()" class="flex items-center gap-2.5 text-left group focus:outline-none">
+        <div class="w-9 h-9 rounded-full bg-gold-500/15 border border-gold-400/40 flex items-center justify-center text-gold-400 group-hover:bg-gold-500/25 transition">
+          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <path d="M9 18V5l12-2v13" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="6" cy="18" r="3"/>
+            <circle cx="18" cy="16" r="3"/>
+          </svg>
+        </div>
+        <div>
+          <span class="font-serif font-bold text-base sm:text-lg tracking-wide text-parchment-50 block leading-tight">人生交響樂團</span>
+          <span class="text-[11px] text-gold-400/80 tracking-widest uppercase block">Values Symphony Scale</span>
+        </div>
+      </button>
+
+      <div class="flex items-center gap-2 sm:gap-3">
+        <button id="btn-sound-toggle" onclick="toggleSoundEffect()" title="切換互動音效" class="p-2.5 rounded-full border border-gold-500/25 text-gold-300 hover:bg-gold-500/15 transition flex items-center gap-1.5 text-xs">
+          <svg id="icon-sound-on" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+            <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+            <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+          </svg>
+          <svg id="icon-sound-off" class="w-4 h-4 hidden text-parchment-300/50" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+            <line x1="23" y1="9" x2="17" y2="15"></line>
+            <line x1="17" y1="9" x2="23" y2="15"></line>
+          </svg>
+          <span class="hidden sm:inline" id="sound-label">音效開啟</span>
+        </button>
+
+        <button onclick="openEncyclopedia()" class="px-3.5 py-2 rounded-full border border-gold-400/40 bg-gold-500/10 hover:bg-gold-500/20 text-gold-300 text-xs sm:text-sm font-medium transition flex items-center gap-1.5">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+          </svg>
+          <span>樂器圖鑑</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- 主要內容容器 -->
+  <main class="flex-1 w-full max-w-4xl mx-auto px-4 sm:px-6 py-6 sm:py-10 flex flex-col justify-center">
+
+    <!-- ==================== 1. 首頁（歡迎畫面） ==================== -->
+    <section id="view-home" class="animate-enter">
+      <div class="velvet-card rounded-3xl p-6 sm:p-10 md:p-12 relative overflow-hidden staff-pattern">
+        <!-- 裝飾性角落金線 -->
+        <div class="absolute top-4 left-4 w-8 h-8 border-t-2 border-l-2 border-gold-400/40 rounded-tl-lg pointer-events-none"></div>
+        <div class="absolute top-4 right-4 w-8 h-8 border-t-2 border-r-2 border-gold-400/40 rounded-tr-lg pointer-events-none"></div>
+        <div class="absolute bottom-4 left-4 w-8 h-8 border-b-2 border-l-2 border-gold-400/40 rounded-bl-lg pointer-events-none"></div>
+        <div class="absolute bottom-4 right-4 w-8 h-8 border-b-2 border-r-2 border-gold-400/40 rounded-br-lg pointer-events-none"></div>
+
+        <div class="text-center max-w-2xl mx-auto">
+          <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gold-500/15 border border-gold-400/35 text-gold-300 text-xs sm:text-sm font-medium mb-5">
+            <span>序曲 · OVERTURE</span>
+            <span class="text-gold-500">•</span>
+            <span>生活與心理學 互動心理測驗（共 27 題・約 2 分鐘）</span>
+          </div>
+
+          <h1 class="font-serif font-black text-3xl sm:text-4xl md:text-5xl text-parchment-50 tracking-tight leading-snug mb-3">
+            《你是哪一種<span class="text-gold-400">樂器</span>？》
+            <span class="text-2xl sm:text-3xl md:text-4xl font-bold text-parchment-200 block mt-2">價值觀類型量表</span>
+          </h1>
+
+          <p class="text-parchment-200/90 text-sm sm:text-base leading-relaxed mb-8">
+            作答沒有對錯，請跟隨你的第一直覺選擇。<br class="hidden sm:inline" />
+            透過 <strong class="text-gold-300 font-semibold">27 道二選一生活情境</strong>，探索你在三條價值觀軸線上的優先順序，找出你在交響樂團中的專屬樂器！
+          </p>
+
+          <!-- 三條軸線簡介卡片 -->
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mb-8 text-left">
+            <div class="bg-midnight-950/65 border border-gold-500/20 rounded-2xl p-4">
+              <div class="text-xs font-display tracking-wider text-gold-400 mb-1">AXIS I · 價值驅力</div>
+              <div class="font-serif font-bold text-base text-parchment-50 mb-1">外在 E ⇄ 內在 I</div>
+              <p class="text-xs text-parchment-300/80 leading-relaxed">追求社會認可、財富與成就，抑或內心踏實、自由與自我成長。</p>
+            </div>
+            <div class="bg-midnight-950/65 border border-gold-500/20 rounded-2xl p-4">
+              <div class="text-xs font-display tracking-wider text-gold-400 mb-1">AXIS II · 關係重心</div>
+              <div class="font-serif font-bold text-base text-parchment-50 mb-1">自我 M ⇄ 他人 O</div>
+              <p class="text-xs text-parchment-300/80 leading-relaxed">優先照顧身心平衡與個人品質，抑或為家人、關係與助人付出。</p>
+            </div>
+            <div class="bg-midnight-950/65 border border-gold-500/20 rounded-2xl p-4">
+              <div class="text-xs font-display tracking-wider text-gold-400 mb-1">AXIS III · 節奏偏好</div>
+              <div class="font-serif font-bold text-base text-parchment-50 mb-1">穩定 S ⇄ 變動 C</div>
+              <p class="text-xs text-parchment-300/80 leading-relaxed">偏愛可預期的安全感與長遠規劃，抑或擁抱未知、冒險與新鮮體驗。</p>
+            </div>
+          </div>
+
+          <!-- 題序模式切換開關 -->
+          <div class="bg-midnight-950/65 border border-gold-500/25 rounded-2xl p-3.5 sm:px-5 mb-8 inline-flex flex-col sm:flex-row items-center gap-3">
+            <span class="text-xs sm:text-sm text-parchment-200 font-medium">演奏曲目編排：</span>
+            <div class="flex flex-col sm:flex-row rounded-xl bg-midnight-900 p-1 border border-gold-500/25 gap-1">
+              <button id="mode-random" onclick="setOrderMode('random')" class="px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition bg-gold-500 text-midnight-950 shadow">
+                隨機交響模式（打亂題序，減少作答慣性，推薦）
+              </button>
+              <button id="mode-chapters" onclick="setOrderMode('chapters')" class="px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition text-parchment-200 hover:text-gold-300">
+                三樂章順序模式（依軸線順序）
+              </button>
+            </div>
+          </div>
+
+          <!-- 主要行動按鈕 -->
+          <div class="flex flex-col sm:flex-row items-center justify-center gap-3.5 sm:gap-4">
+            <button onclick="startQuiz()" class="w-full sm:w-auto px-8 py-4 rounded-2xl bg-gradient-to-r from-gold-400 via-gold-500 to-gold-400 hover:from-gold-300 hover:to-gold-400 text-midnight-950 font-serif font-bold text-lg shadow-lg shadow-gold-500/25 transition transform hover:-translate-y-0.5 active:scale-98 flex items-center justify-center gap-2.5">
+              <span>開始演奏測驗</span>
+              <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+                <polyline points="12 5 19 12 12 19"></polyline>
+              </svg>
+            </button>
+
+            <button onclick="openEncyclopedia()" class="w-full sm:w-auto px-6 py-4 rounded-2xl border border-gold-400/40 bg-midnight-800/70 hover:bg-midnight-700/80 text-parchment-100 font-medium text-base transition flex items-center justify-center gap-2">
+              <span>查看 8 種樂器圖鑑</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 2. 測驗進行頁面 ==================== -->
+    <section id="view-quiz" class="hidden animate-enter">
+      <div class="velvet-card rounded-3xl p-5 sm:p-8 md:p-10 relative overflow-hidden">
+        
+        <!-- 頂部進度資訊 -->
+        <div class="flex items-center justify-between gap-4 mb-3">
+          <div class="flex items-center gap-2">
+            <span id="quiz-chapter-badge" class="px-3 py-1 rounded-full bg-gold-500/15 border border-gold-400/30 text-gold-300 text-xs font-medium">
+              隨機直覺模式
+            </span>
+          </div>
+          <div class="text-right font-mono text-sm sm:text-base">
+            <span class="text-gold-400 font-bold" id="quiz-progress-text">第 1 / 27 題</span>
+            <span class="text-parchment-300/60 text-xs ml-1.5" id="quiz-percent-text">(4%)</span>
+          </div>
+        </div>
+
+        <!-- 進度條 -->
+        <div class="w-full h-2.5 bg-midnight-950 rounded-full overflow-hidden border border-gold-500/20 mb-7 sm:mb-9">
+          <div id="quiz-progress-bar" class="h-full bg-gradient-to-r from-gold-600 via-gold-400 to-gold-300 rounded-full transition-all duration-300 ease-out" style="width: 3.7%;"></div>
+        </div>
+
+        <!-- 題目區塊 -->
+        <div id="question-container" class="transition-opacity duration-200">
+          <div class="text-center mb-6 sm:mb-8">
+            <p class="text-xs uppercase tracking-widest text-gold-400/80 mb-2">憑第一直覺選擇最貼近你的選項</p>
+            <h2 id="question-prompt" class="font-serif font-bold text-xl sm:text-2xl md:text-3xl text-parchment-50 leading-snug">
+              在以下兩者之間，你更傾向哪一種？
+            </h2>
+          </div>
+
+          <!-- 兩個大尺寸選項卡片 -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5 mb-8">
+            <!-- 選項 A -->
+            <button id="option-btn-A" onclick="selectAnswer('A')" class="option-card text-left p-6 sm:p-7 rounded-2xl bg-midnight-800/75 border-2 border-gold-500/25 flex flex-col justify-between min-h-[132px] sm:min-h-[160px] group focus:outline-none">
+              <div class="flex items-center justify-between w-full mb-3">
+                <span class="w-9 h-9 rounded-xl bg-gold-500/15 border border-gold-400/40 text-gold-300 font-display font-bold flex items-center justify-center text-base group-hover:bg-gold-400 group-hover:text-midnight-950 transition">
+                  A
+                </span>
+                <span class="text-xs text-parchment-300/40 group-hover:text-gold-300/80 transition">點擊選擇</span>
+              </div>
+              <p id="option-text-A" class="font-serif font-bold text-lg sm:text-xl text-parchment-50 leading-relaxed">
+                升遷加薪、頭銜被認可
+              </p>
+            </button>
+
+            <!-- 選項 B -->
+            <button id="option-btn-B" onclick="selectAnswer('B')" class="option-card text-left p-6 sm:p-7 rounded-2xl bg-midnight-800/75 border-2 border-gold-500/25 flex flex-col justify-between min-h-[132px] sm:min-h-[160px] group focus:outline-none">
+              <div class="flex items-center justify-between w-full mb-3">
+                <span class="w-9 h-9 rounded-xl bg-gold-500/15 border border-gold-400/40 text-gold-300 font-display font-bold flex items-center justify-center text-base group-hover:bg-gold-400 group-hover:text-midnight-950 transition">
+                  B
+                </span>
+                <span class="text-xs text-parchment-300/40 group-hover:text-gold-300/80 transition">點擊選擇</span>
+              </div>
+              <p id="option-text-B" class="font-serif font-bold text-lg sm:text-xl text-parchment-50 leading-relaxed">
+                做有意義的工作，薪水普通
+              </p>
+            </button>
+          </div>
+        </div>
+
+        <!-- 底部控制列 -->
+        <div class="flex items-center justify-between pt-4 border-t border-gold-500/15">
+          <button id="btn-prev" onclick="prevQuestion()" class="px-4 py-2.5 rounded-xl border border-gold-500/25 text-parchment-200 hover:bg-midnight-800 hover:text-gold-300 disabled:opacity-35 disabled:pointer-events-none transition text-sm flex items-center gap-1.5">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
+            <span>上一題</span>
+          </button>
+
+          <span class="text-xs text-parchment-300/50 hidden sm:inline">沒有對錯，請跟隨內心的聲音</span>
+
+          <button onclick="confirmRestart()" class="px-3.5 py-2 rounded-xl text-xs text-parchment-300/70 hover:text-gold-300 transition">
+            重新開始
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 3. 結果分析頁面 ==================== -->
+    <section id="view-result" class="hidden animate-enter">
+      <!-- 羊皮紙質感結果主卡（適合截圖分享） -->
+      <div id="result-share-card" class="parchment-card rounded-3xl p-6 sm:p-10 md:p-12 relative overflow-hidden mb-6">
+        <!-- 雙線古典邊框裝飾 -->
+        <div class="border-2 border-gold-600/35 rounded-2xl p-5 sm:p-8 relative">
+          
+          <!-- 頂部徽章與代號 -->
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-gold-600/25 pb-5 mb-6">
+            <div>
+              <span class="text-xs font-bold tracking-widest uppercase text-gold-600 block mb-1">終曲・你的專屬樂器｜FINALE PROFILE</span>
+              <div class="flex items-baseline gap-3 flex-wrap">
+                <span id="res-code" class="font-display font-bold text-3xl sm:text-4xl text-midnight-900 tracking-wider">E‧O‧S</span>
+                <span class="text-gold-600 font-bold text-xl">｜</span>
+                <h2 id="res-type" class="font-serif font-black text-2xl sm:text-3xl text-burgundy-800">家業守護者</h2>
+              </div>
+            </div>
+            <div class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-midnight-900 text-gold-300 self-start sm:self-center shadow-md">
+              <span class="text-xs text-parchment-300">專屬樂器</span>
+              <span id="res-instrument" class="font-serif font-bold text-lg sm:text-xl text-gold-300">低音提琴</span>
+            </div>
+          </div>
+
+          <!-- 中央區塊：客製化 SVG 樂器插畫 + 試聽按鈕 + 對應理由與鼓勵 -->
+          <div class="grid grid-cols-1 md:grid-cols-12 gap-6 sm:gap-8 items-center mb-8">
+            <!-- 左側樂器插畫盒 -->
+            <div class="md:col-span-5 flex flex-col items-center">
+              <div class="w-48 h-48 sm:w-56 sm:h-56 rounded-2xl bg-gradient-to-b from-midnight-900 to-midnight-800 border-2 border-gold-500/60 shadow-xl flex items-center justify-center p-4 relative group">
+                <div id="res-svg-container" class="w-full h-full flex items-center justify-center">
+                  <!-- 动态插入 SVG -->
+                </div>
+              </div>
+
+              <!-- 試聽樂器音色按鈕 -->
+              <button id="btn-play-instrument" onclick="playCurrentInstrumentSound()" class="mt-4 px-5 py-2.5 rounded-full bg-midnight-900 hover:bg-midnight-800 text-gold-300 border border-gold-500/50 shadow-md transition flex items-center gap-2.5 text-sm font-medium active:scale-95">
+                <span id="play-icon-wrap" class="flex items-center justify-center w-5 h-5">
+                  <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                </span>
+                <span id="play-wave-wrap" class="hidden items-end gap-0.5 h-4 w-5 justify-center">
+                  <span class="w-1 h-full bg-gold-400 rounded-full wave-bar"></span>
+                  <span class="w-1 h-full bg-gold-400 rounded-full wave-bar"></span>
+                  <span class="w-1 h-full bg-gold-400 rounded-full wave-bar"></span>
+                  <span class="w-1 h-full bg-gold-400 rounded-full wave-bar"></span>
+                </span>
+                <span id="play-btn-label">試聽樂器音色</span>
+              </button>
+            </div>
+
+            <!-- 右側解析文字 -->
+            <div class="md:col-span-7 space-y-4">
+              <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg bg-gold-500/15 border border-gold-600/30 text-midnight-900 text-sm font-bold">
+                <span>樂團定位：</span>
+                <span id="res-reason" class="text-burgundy-800">默默撐起整個樂團</span>
+              </div>
+
+              <div class="bg-white/75 border border-gold-600/25 rounded-2xl p-5 shadow-sm">
+                <p class="text-xs font-bold text-gold-600 tracking-wider mb-2">給你的樂章寄語</p>
+                <p id="res-encouragement" class="font-serif font-bold text-lg sm:text-xl text-midnight-900 leading-relaxed">
+                  「你是整個樂團的地基，沒有你，音樂就站不穩。你的付出很重要，也別忘了照顧自己。」
+                </p>
+              </div>
+
+              <div id="res-tags" class="flex flex-wrap gap-2 pt-1">
+                <!-- 動態標籤 -->
+              </div>
+            </div>
+          </div>
+
+          <!-- 三軸比例條視覺化 -->
+          <div class="bg-midnight-900 text-parchment-50 rounded-2xl p-5 sm:p-6 shadow-inner">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="font-serif font-bold text-base sm:text-lg text-gold-300 flex items-center gap-2">
+                <svg class="w-5 h-5 text-gold-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="18" y1="20" x2="18" y2="10"></line>
+                  <line x1="12" y1="20" x2="12" y2="4"></line>
+                  <line x1="6" y1="20" x2="6" y2="14"></line>
+                </svg>
+                <span>三條價值觀軸線分佈</span>
+              </h3>
+              <span class="text-xs text-parchment-300/70">每軸共 9 題</span>
+            </div>
+
+            <div class="space-y-5" id="axes-bars-container">
+              <!-- 軸 1 -->
+              <div>
+                <div class="flex justify-between text-xs sm:text-sm font-medium mb-1.5">
+                  <span id="axis1-left-label" class="text-gold-300 font-bold">外在 E · 6題 (67%)</span>
+                  <span class="text-parchment-300/60 text-xs">軸 1：價值驅力</span>
+                  <span id="axis1-right-label" class="text-parchment-200">33% · 3題 內在 I</span>
+                </div>
+                <div class="w-full h-3.5 bg-midnight-950 rounded-full overflow-hidden flex p-0.5 border border-gold-500/25">
+                  <div id="axis1-bar-left" class="h-full bg-gradient-to-r from-gold-500 to-gold-300 rounded-l-full transition-all duration-700" style="width: 67%"></div>
+                  <div id="axis1-bar-right" class="h-full bg-gradient-to-r from-sky-400 to-indigo-400 rounded-r-full transition-all duration-700" style="width: 33%"></div>
+                </div>
+              </div>
+
+              <!-- 軸 2 -->
+              <div>
+                <div class="flex justify-between text-xs sm:text-sm font-medium mb-1.5">
+                  <span id="axis2-left-label" class="text-gold-300 font-bold">自我 M · 3題 (33%)</span>
+                  <span class="text-parchment-300/60 text-xs">軸 2：關係重心</span>
+                  <span id="axis2-right-label" class="text-parchment-200">67% · 6題 他人 O</span>
+                </div>
+                <div class="w-full h-3.5 bg-midnight-950 rounded-full overflow-hidden flex p-0.5 border border-gold-500/25">
+                  <div id="axis2-bar-left" class="h-full bg-gradient-to-r from-gold-500 to-gold-300 rounded-l-full transition-all duration-700" style="width: 33%"></div>
+                  <div id="axis2-bar-right" class="h-full bg-gradient-to-r from-emerald-400 to-teal-400 rounded-r-full transition-all duration-700" style="width: 67%"></div>
+                </div>
+              </div>
+
+              <!-- 軸 3 -->
+              <div>
+                <div class="flex justify-between text-xs sm:text-sm font-medium mb-1.5">
+                  <span id="axis3-left-label" class="text-gold-300 font-bold">穩定 S · 7題 (78%)</span>
+                  <span class="text-parchment-300/60 text-xs">軸 3：節奏偏好</span>
+                  <span id="axis3-right-label" class="text-parchment-200">22% · 2題 變動 C</span>
+                </div>
+                <div class="w-full h-3.5 bg-midnight-950 rounded-full overflow-hidden flex p-0.5 border border-gold-500/25">
+                  <div id="axis3-bar-left" class="h-full bg-gradient-to-r from-gold-500 to-gold-300 rounded-l-full transition-all duration-700" style="width: 78%"></div>
+                  <div id="axis3-bar-right" class="h-full bg-gradient-to-r from-rose-400 to-amber-500 rounded-r-full transition-all duration-700" style="width: 22%"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 量表學術說明註記 -->
+          <p class="text-center text-xs text-midnight-800/75 mt-5">
+            ※ 以上為《生活與心理學》課程趣味性回饋，不是心理診斷，也不代表固定不變的人格。
+          </p>
+        </div>
+      </div>
+
+      <!-- 底部操作按鈕列 -->
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+        <button onclick="copyResultText()" class="px-5 py-3.5 rounded-2xl bg-gradient-to-r from-gold-400 to-gold-500 hover:from-gold-300 hover:to-gold-400 text-midnight-950 font-bold text-sm sm:text-base shadow-lg shadow-gold-500/20 transition flex items-center justify-center gap-2">
+          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+          </svg>
+          <span>複製結果分享給同學</span>
+        </button>
+
+        <button onclick="openEncyclopedia()" class="px-5 py-3.5 rounded-2xl velvet-card hover:border-gold-400 text-gold-300 font-medium text-sm sm:text-base transition flex items-center justify-center gap-2">
+          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="16" x2="12" y2="12"></line>
+            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+          </svg>
+          <span>查看全部 8 種樂器圖鑑</span>
+        </button>
+
+        <button onclick="openEncyclopedia()" class="px-5 py-3.5 rounded-2xl velvet-card hover:border-gold-400 text-gold-300 font-medium text-sm sm:text-base transition flex items-center justify-center gap-2">
+          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="16" x2="12" y2="12"></line>
+            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+          </svg>
+          <span>瀏覽所有 8 種樂器類型</span>
+        </button>
+
+        <button onclick="restartQuizDirect()" class="px-5 py-3.5 rounded-2xl border border-gold-500/30 bg-midnight-900/80 hover:bg-midnight-800 text-parchment-200 font-medium text-sm sm:text-base transition flex items-center justify-center gap-2">
+          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="1 4 1 10 7 10"></polyline>
+            <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
+          </svg>
+          <span>重新測驗</span>
+        </button>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- 頁尾 -->
+  <footer class="w-full py-5 text-center text-xs text-parchment-300/45 border-t border-gold-500/10">
+    生活與心理學集中報告｜你是哪一種樂器？價值觀類型量表
+  </footer>
+
+  <!-- ==================== 8 種樂器圖鑑彈出視窗 (Modal) ==================== -->
+  <div id="modal-encyclopedia" class="fixed inset-0 z-50 hidden bg-midnight-950/85 backdrop-blur-md overflow-y-auto p-4 sm:p-6">
+    <div class="max-w-4xl mx-auto my-4 sm:my-8 velvet-card rounded-3xl p-5 sm:p-8 border border-gold-400/35 relative animate-enter">
+      <div class="flex items-center justify-between border-b border-gold-500/20 pb-4 mb-6">
+        <div>
+          <span class="text-xs font-display tracking-widest text-gold-400 uppercase block">ORCHESTRA ENCYCLOPEDIA</span>
+          <h2 class="font-serif font-bold text-2xl sm:text-3xl text-parchment-50">交響樂團 8 種樂器類型圖鑑</h2>
+        </div>
+        <button onclick="closeEncyclopedia()" class="w-10 h-10 rounded-full bg-midnight-800 hover:bg-gold-500/20 border border-gold-500/30 text-parchment-200 hover:text-gold-300 flex items-center justify-center transition">
+          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
+      <p class="text-sm text-parchment-200/80 mb-6">
+        點擊任意樂器卡片上的「試聽音色」按鈕，即可聆聽該樂器在交響樂團中的代表音律！
+      </p>
+
+      <div id="encyclopedia-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
+        <!-- 由 JS 動態生成 8 張樂器卡片 -->
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== 確認重新測驗自訂對話框（取代 confirm） ==================== -->
+  <div id="modal-confirm" class="fixed inset-0 z-50 hidden bg-midnight-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="velvet-card rounded-2xl p-6 max-w-sm w-full border border-gold-400/40 text-center animate-enter">
+      <h3 class="font-serif font-bold text-xl text-parchment-50 mb-2">確定要重新開始測驗嗎？</h3>
+      <p class="text-sm text-parchment-300/80 mb-6">目前的作答進度將會清空並回到首頁。</p>
+      <div class="flex gap-3 justify-center">
+        <button onclick="closeConfirmModal()" class="flex-1 py-2.5 rounded-xl border border-gold-500/30 text-parchment-200 hover:bg-midnight-800 text-sm font-medium transition">
+          繼續作答
+        </button>
+        <button onclick="executeRestart()" class="flex-1 py-2.5 rounded-xl bg-gold-500 hover:bg-gold-400 text-midnight-950 text-sm font-bold transition">
+          重新開始
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 浮動提示訊息 Toast（取代 alert） -->
+  <div id="toast-message" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 px-5 py-3 rounded-full bg-gold-400 text-midnight-950 font-bold text-sm shadow-2xl transition-all duration-300 opacity-0 pointer-events-none translate-y-4 flex items-center gap-2">
+    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+      <polyline points="20 6 9 17 4 12"></polyline>
+    </svg>
+    <span id="toast-text">已複製結果！</span>
+  </div>
+
+  <script>
+    /* ============================================================================
+       1. 完整資料定義：27 道題目與 8 種樂器人格設定
+       ============================================================================ */
+    const QUESTIONS = [
+      // 軸 1：外在 (A=E) ⇄ 內在 (B=I)
+      { id: 1, axis: 1, chapter: '第一樂章：價值驅力（外在 ⇄ 內在）', prompt: '在職涯與成就上，你更看重哪一項？', optionA: '升遷加薪、頭銜被認可', optionB: '做有意義的工作，薪水普通', valA: 'E', valB: 'I' },
+      { id: 2, axis: 1, chapter: '第一樂章：價值驅力（外在 ⇄ 內在）', prompt: '面對努力的成果，哪一種更令你心動？', optionA: '在比賽或考核中拿到名次', optionB: '在自己的專長上突破瓶頸，沒人知道', valA: 'E', valB: 'I' },
+      { id: 3, axis: 1, chapter: '第一樂章：價值驅力（外在 ⇄ 內在）', prompt: '你理想中的人生狀態比較接近？', optionA: '擁有讓人羨慕的成就', optionB: '擁有讓自己滿足的生活', valA: 'E', valB: 'I' },
+      { id: 4, axis: 1, chapter: '第一樂章：價值驅力（外在 ⇄ 內在）', prompt: '如果必須在兩份工作之間二選一：', optionA: '高薪但內容無聊', optionB: '薪水普通但熱愛', valA: 'E', valB: 'I' },
+      { id: 5, axis: 1, chapter: '第一樂章：價值驅力（外在 ⇄ 內在）', prompt: '在人際與社會存在感上，你偏好？', optionA: '被很多人認識', optionB: '被少數人深深理解', valA: 'E', valB: 'I' },
+      { id: 6, axis: 1, chapter: '第一樂章：價值驅力（外在 ⇄ 內在）', prompt: '關於「成功」，你更傾向哪種定義？', optionA: '追求社會公認的成功', optionB: '追求自己定義的成功', valA: 'E', valB: 'I' },
+      { id: 7, axis: 1, chapter: '第一樂章：價值驅力（外在 ⇄ 內在）', prompt: '完成一件事後，你內心更關注的是？', optionA: '在意別人給的好評', optionB: '在意自己有沒有成長', valA: 'E', valB: 'I' },
+      { id: 8, axis: 1, chapter: '第一樂章：價值驅力（外在 ⇄ 內在）', prompt: '有一筆可自由運用的預算時，你傾向？', optionA: '買能彰顯身分的東西', optionB: '把錢花在學習與探索', valA: 'E', valB: 'I' },
+      { id: 9, axis: 1, chapter: '第一樂章：價值驅力（外在 ⇄ 內在）', prompt: '哪一種回饋更能帶給你動力？', optionA: '得到他人的肯定與獎勵', optionB: '得到自己內心的踏實感', valA: 'E', valB: 'I' },
+
+      // 軸 2：自我 (A=M) ⇄ 他人 (B=O)
+      { id: 10, axis: 2, chapter: '第二樂章：關係重心（自我 ⇄ 他人）', prompt: '難得的週末時光，你更想怎麼度過？', optionA: '一個人充電', optionB: '陪家人朋友', valA: 'M', valB: 'O' },
+      { id: 11, axis: 2, chapter: '第二樂章：關係重心（自我 ⇄ 他人）', prompt: '當時間與精力有限時，你通常會？', optionA: '保留時間睡眠運動', optionB: '犧牲休息去幫朋友', valA: 'M', valB: 'O' },
+      { id: 12, axis: 2, chapter: '第二樂章：關係重心（自我 ⇄ 他人）', prompt: '想用金錢創造快樂時，你更常選擇？', optionA: '花錢犒賞自己', optionB: '花錢請重要的人', valA: 'M', valB: 'O' },
+      { id: 13, axis: 2, chapter: '第二樂章：關係重心（自我 ⇄ 他人）', prompt: '有自己的計畫時，家人剛好需要你：', optionA: '照原計畫', optionB: '先顧家人', valA: 'M', valB: 'O' },
+      { id: 14, axis: 2, chapter: '第二樂章：關係重心（自我 ⇄ 他人）', prompt: '面對生活與家庭的取捨，你更偏向？', optionA: '生活品質優先', optionB: '為家人願意降低生活品質', valA: 'M', valB: 'O' },
+      { id: 15, axis: 2, chapter: '第二樂章：關係重心（自我 ⇄ 他人）', prompt: '規劃一趟期待已久的旅行，你會選？', optionA: '一個人旅行', optionB: '和重要的人同行', valA: 'M', valB: 'O' },
+      { id: 16, axis: 2, chapter: '第二樂章：關係重心（自我 ⇄ 他人）', prompt: '遇到沒什麼興趣的社交邀約時：', optionA: '拒絕不想去的聚會', optionB: '為維繫關係還是出席', valA: 'M', valB: 'O' },
+      { id: 17, axis: 2, chapter: '第二樂章：關係重心（自我 ⇄ 他人）', prompt: '當手邊多了一筆額外收入，你傾向？', optionA: '額外收入拿來享受', optionB: '拿一部分捐出或做志工', valA: 'M', valB: 'O' },
+      { id: 18, axis: 2, chapter: '第二樂章：關係重心（自我 ⇄ 他人）', prompt: '你人生中的行動原則更接近哪一句？', optionA: '先把自己顧好再說', optionB: '先幫身邊的人再說', valA: 'M', valB: 'O' },
+
+      // 軸 3：穩定 (A=S) ⇄ 變動 (B=C)
+      { id: 19, axis: 3, chapter: '第三樂章：節奏偏好（穩定 ⇄ 變動）', prompt: '面對未來的職業選擇，你更傾向？', optionA: '穩定的工作', optionB: '高風險高報酬的機會', valA: 'S', valB: 'C' },
+      { id: 20, axis: 3, chapter: '第三樂章：節奏偏好（穩定 ⇄ 變動）', prompt: '在日常步調與工作習慣上，你偏好？', optionA: '固定的圈子、固定的做事方式', optionB: '常換新環境、嘗試新做法', valA: 'S', valB: 'C' },
+      { id: 21, axis: 3, chapter: '第三樂章：節奏偏好（穩定 ⇄ 變動）', prompt: '今天晚上要決定吃什麼，你通常會？', optionA: '吃熟悉的餐廳', optionB: '試沒吃過的店', valA: 'S', valB: 'C' },
+      { id: 22, axis: 3, chapter: '第三樂章：節奏偏好（穩定 ⇄ 變動）', prompt: '面對即將到來的一年，你的習慣是？', optionA: '規劃好未來一年', optionB: '走一步算一步', valA: 'S', valB: 'C' },
+      { id: 23, axis: 3, chapter: '第三樂章：節奏偏好（穩定 ⇄ 變動）', prompt: '如果有機會選擇居住地，你會選？', optionA: '住在熟悉的城市', optionB: '搬到陌生國家', valA: 'S', valB: 'C' },
+      { id: 24, axis: 3, chapter: '第三樂章：節奏偏好（穩定 ⇄ 變動）', prompt: '面對新任務或專案時，你比較喜歡？', optionA: '做自己已經熟練的事', optionB: '挑戰完全沒碰過的領域', valA: 'S', valB: 'C' },
+      { id: 25, axis: 3, chapter: '第三樂章：節奏偏好（穩定 ⇄ 變動）', prompt: '當一個新計畫出現時，你的決策風格是？', optionA: '存款有保障才行動', optionB: '有機會就先衝', valA: 'S', valB: 'C' },
+      { id: 26, axis: 3, chapter: '第三樂章：節奏偏好（穩定 ⇄ 變動）', prompt: '對於長遠的人生藍圖，你更傾向？', optionA: '擁有十年規劃', optionB: '隨時調整人生方向', valA: 'S', valB: 'C' },
+      { id: 27, axis: 3, chapter: '第三樂章：節奏偏好（穩定 ⇄ 變動）', prompt: '在人生的十字路口，你寧可選擇？', optionA: '寧可選擇可預期的結果', optionB: '寧可選擇充滿變數的可能', valA: 'S', valB: 'C' }
+    ];
+
+    const INSTRUMENTS = {
+      'EMS': {
+        code: 'E‧M‧S',
+        type: '實力累積者',
+        instrument: '長號',
+        enName: 'Trombone',
+        reason: '穩健紮實，有分量',
+        encouragement: '你一步一腳印，把實力練成別人偷不走的底氣。穩穩累積，你的時刻會來。',
+        tags: ['外在成就 E', '自我步調 M', '穩健累積 S'],
+        notes: [146.83, 220.00, 293.66], // D3 - A3 - D4 渾厚銅管五度
+        wave: 'sawtooth',
+        filterFreq: 750
+      },
+      'EMC': {
+        code: 'E‧M‧C',
+        type: '野心冒險家',
+        instrument: '小號',
+        enName: 'Trumpet',
+        reason: '明亮、愛當焦點',
+        encouragement: '你天生適合站在舞台中央。敢衝敢試是你的優勢，記得偶爾也回頭聽聽自己的聲音。',
+        tags: ['外在成就 E', '自我主導 M', '勇於冒險 C'],
+        notes: [523.25, 659.25, 783.99, 1046.50], // C5 - E5 - G5 - C6 嘹亮號角
+        wave: 'sawtooth',
+        filterFreq: 2200
+      },
+      'EOS': {
+        code: 'E‧O‧S',
+        type: '家業守護者',
+        instrument: '低音提琴',
+        enName: 'Double Bass',
+        reason: '默默撐起整個樂團',
+        encouragement: '你是整個樂團的地基，沒有你，音樂就站不穩。你的付出很重要，也別忘了照顧自己。',
+        tags: ['責任擔當 E', '守護他人 O', '安穩基石 S'],
+        notes: [82.41, 110.00, 146.83], // E2 - A2 - D3 深沉低音撥奏/拉奏
+        wave: 'triangle',
+        filterFreq: 420
+      },
+      'EOC': {
+        code: 'E‧O‧C',
+        type: '領袖開創者',
+        instrument: '小提琴首席',
+        enName: 'Concertmaster Violin',
+        reason: '帶領全團前進',
+        encouragement: '你願意帶著大家一起往前走。保持你的熱情，也讓夥伴有機會發光。',
+        tags: ['外在影響 E', '凝聚他人 O', '開創新局 C'],
+        notes: [440.00, 554.37, 659.25, 880.00], // A4 - C#5 - E5 - A5 輝煌弦樂
+        wave: 'sawtooth',
+        filterFreq: 1850
+      },
+      'IMS': {
+        code: 'I‧M‧S',
+        type: '安靜修行者',
+        instrument: '大提琴',
+        enName: 'Cello',
+        reason: '深沉內省',
+        encouragement: '你的深度來自安靜的累積。不必急著被看見，你的聲音自有重量。',
+        tags: ['內在探索 I', '獨處沉澱 M', '靜定深耕 S'],
+        notes: [130.81, 196.00, 246.94, 329.63], // C3 - G3 - B3 - E4 溫暖大提琴大七和弦
+        wave: 'sawtooth',
+        filterFreq: 950
+      },
+      'IMC': {
+        code: 'I‧M‧C',
+        type: '自由探索者',
+        instrument: '長笛',
+        enName: 'Flute',
+        reason: '靈動自由',
+        encouragement: '你輕盈、好奇、不被框住。繼續去探索吧，路上的風景就是你的答案。',
+        tags: ['內在自由 I', '隨心而行 M', '新鮮體驗 C'],
+        notes: [587.33, 739.99, 880.00, 1174.66], // D5 - F#5 - A5 - D6 清亮長笛
+        wave: 'sine',
+        filterFreq: 2600
+      },
+      'IOS': {
+        code: 'I‧O‧S',
+        type: '溫暖陪伴者',
+        instrument: '中提琴',
+        enName: 'Viola',
+        reason: '內聲部，默默融合陪伴',
+        encouragement: '你是讓和聲變得圓潤的人。你的溫柔讓身邊的人安心，這份力量值得被看見。',
+        tags: ['內在真誠 I', '溫柔利他 O', '長情陪伴 S'],
+        notes: [261.63, 329.63, 392.00, 493.88], // C4 - E4 - G4 - B4 圓潤中音和聲
+        wave: 'triangle',
+        filterFreq: 1200
+      },
+      'IOC': {
+        code: 'I‧O‧C',
+        type: '理想實踐者',
+        instrument: '雙簧管',
+        enName: 'Oboe',
+        reason: '為全團定音，帶頭起步',
+        encouragement: '你心裡有想相信的事，也願意為它起身行動。你的信念，能讓別人找到方向。',
+        tags: ['內在使命 I', '連結社群 O', '行動突破 C'],
+        notes: [440.00, 440.00, 523.25, 659.25], // A4 定音起始 -> C5 - E5
+        wave: 'square',
+        filterFreq: 1350
+      }
+    };
+
+    /* ============================================================================
+       2. 客製化藝術感 SVG 樂器插畫庫
+       ============================================================================ */
+    function getInstrumentSVG(key) {
+      const svgs = {
+        // 長號 Trombone
+        'EMS': `
+          <svg viewBox="0 0 160 160" class="w-full h-full drop-shadow-lg">
+            <defs>
+              <linearGradient id="brassGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#FCE59B"/>
+                <stop offset="50%" stop-color="#D4A338"/>
+                <stop offset="100%" stop-color="#8C6214"/>
+              </linearGradient>
+            </defs>
+            <circle cx="80" cy="80" r="64" fill="none" stroke="#E2BE63" stroke-opacity="0.18" stroke-dasharray="4 4"/>
+            <g transform="rotate(-35 80 80)">
+              <!-- 喇叭口 -->
+              <path d="M 22 44 Q 44 52 58 53 L 58 63 Q 44 64 22 72 Z" fill="url(#brassGrad)"/>
+              <ellipse cx="22" cy="58" rx="4" ry="14" fill="#6E4A0B" stroke="#FCE59B" stroke-width="1.5"/>
+              <!-- 主管身與伸縮滑管 -->
+              <rect x="56" y="54" width="76" height="4" rx="2" fill="url(#brassGrad)"/>
+              <path d="M 132 56 A 9 9 0 0 1 132 74" fill="none" stroke="url(#brassGrad)" stroke-width="4" stroke-linecap="round"/>
+              <rect x="44" y="72" width="88" height="4" rx="2" fill="url(#brassGrad)"/>
+              <!-- 支撐橫桿 -->
+              <rect x="68" y="56" width="3.5" height="18" fill="#FCE59B"/>
+              <rect x="96" y="56" width="3.5" height="18" fill="#FCE59B"/>
+              <!-- 後方配重彎管 -->
+              <path d="M 88 55 L 112 55 A 8 8 0 0 0 112 39 L 82 39 A 8 8 0 0 0 82 55" fill="none" stroke="url(#brassGrad)" stroke-width="4"/>
+              <circle cx="113" cy="47" r="5" fill="#FCE59B" stroke="#8C6214" stroke-width="1.5"/>
+              <!-- 吹嘴 -->
+              <path d="M 44 74 L 32 74 L 28 71 L 28 77 L 32 74" fill="none" stroke="#FCE59B" stroke-width="2.5" stroke-linecap="round"/>
+            </g>
+          </svg>`,
+
+        // 小號 Trumpet
+        'EMC': `
+          <svg viewBox="0 0 160 160" class="w-full h-full drop-shadow-lg">
+            <defs>
+              <linearGradient id="trumpetGold" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#FFF0B3"/>
+                <stop offset="45%" stop-color="#E2B13C"/>
+                <stop offset="100%" stop-color="#966912"/>
+              </linearGradient>
+            </defs>
+            <circle cx="80" cy="80" r="62" fill="none" stroke="#F3D98B" stroke-opacity="0.22" stroke-width="1.5"/>
+            <g transform="rotate(-28 80 80)">
+              <!-- 喇叭口 -->
+              <path d="M 20 52 Q 46 62 64 63 L 64 71 Q 46 72 20 82 Z" fill="url(#trumpetGold)"/>
+              <ellipse cx="20" cy="67" rx="3.5" ry="15" fill="#5E3E06" stroke="#FFF0B3" stroke-width="1.5"/>
+              <!-- 管身 -->
+              <rect x="62" y="64" width="66" height="4.5" rx="2" fill="url(#trumpetGold)"/>
+              <path d="M 128 66 A 11 11 0 0 1 128 88 L 58 88 A 11 11 0 0 1 58 66" fill="none" stroke="url(#trumpetGold)" stroke-width="4.5"/>
+              <!-- 三個活塞按鍵 -->
+              <rect x="78" y="55" width="4.5" height="33" rx="1.5" fill="url(#trumpetGold)"/>
+              <rect x="87" y="55" width="4.5" height="33" rx="1.5" fill="url(#trumpetGold)"/>
+              <rect x="96" y="55" width="4.5" height="33" rx="1.5" fill="url(#trumpetGold)"/>
+              <circle cx="80.2" cy="53" r="2.8" fill="#FFFDF5"/>
+              <circle cx="89.2" cy="53" r="2.8" fill="#FFFDF5"/>
+              <circle cx="98.2" cy="53" r="2.8" fill="#FFFDF5"/>
+              <!-- 吹嘴 -->
+              <path d="M 135 88 L 145 88 L 148 84 L 148 92 L 145 88" fill="#FFF0B3" stroke="#FFF0B3" stroke-width="2"/>
+            </g>
+            <!-- 閃耀星芒 -->
+            <path d="M 32 34 L 34 40 L 40 42 L 34 44 L 32 50 L 30 44 L 24 42 L 30 40 Z" fill="#FFF0B3"/>
+          </svg>`,
+
+        // 低音提琴 Double Bass
+        'EOS': `
+          <svg viewBox="0 0 160 160" class="w-full h-full drop-shadow-lg">
+            <defs>
+              <linearGradient id="woodDeep" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#A84B2B"/>
+                <stop offset="50%" stop-color="#6E2814"/>
+                <stop offset="100%" stop-color="#3B1207"/>
+              </linearGradient>
+            </defs>
+            <circle cx="80" cy="80" r="64" fill="none" stroke="#E2BE63" stroke-opacity="0.18" stroke-width="1"/>
+            <!-- 琴身 -->
+            <path d="M 80 46 C 63 46 57 60 63 72 C 67 79 66 84 60 90 C 50 100 52 126 80 126 C 108 126 110 100 100 90 C 94 84 93 79 97 72 C 103 60 97 46 80 46 Z" fill="url(#woodDeep)" stroke="#E2BE63" stroke-width="1.5"/>
+            <!-- F 孔 -->
+            <path d="M 69 83 C 66 87 67 96 64 100" fill="none" stroke="#240903" stroke-width="2.2" stroke-linecap="round"/>
+            <path d="M 91 83 C 94 87 93 96 96 100" fill="none" stroke="#240903" stroke-width="2.2" stroke-linecap="round"/>
+            <!-- 琴頸與琴頭 -->
+            <rect x="76.5" y="18" width="7" height="62" rx="2" fill="#2A1610"/>
+            <circle cx="80" cy="15" r="5.5" fill="#8C381E" stroke="#E2BE63" stroke-width="1.2"/>
+            <circle cx="72" cy="19" r="2" fill="#E2BE63"/>
+            <circle cx="88" cy="19" r="2" fill="#E2BE63"/>
+            <circle cx="72" cy="25" r="2" fill="#E2BE63"/>
+            <circle cx="88" cy="25" r="2" fill="#E2BE63"/>
+            <!-- 琴橋與拉弦板 -->
+            <rect x="73" y="96" width="14" height="3" rx="1" fill="#F3D98B"/>
+            <polygon points="76,108 84,108 81.5,123 78.5,123" fill="#1F120D"/>
+            <!-- 四條琴弦 -->
+            <line x1="78" y1="20" x2="77" y2="108" stroke="#F6EFE0" stroke-width="0.8" stroke-opacity="0.85"/>
+            <line x1="79.3" y1="20" x2="79" y2="108" stroke="#F6EFE0" stroke-width="0.8" stroke-opacity="0.85"/>
+            <line x1="80.7" y1="20" x2="81" y2="108" stroke="#F6EFE0" stroke-width="0.8" stroke-opacity="0.85"/>
+            <line x1="82" y1="20" x2="83" y2="108" stroke="#F6EFE0" stroke-width="0.8" stroke-opacity="0.85"/>
+            <!-- 尾柱 Endpin -->
+            <line x1="80" y1="126" x2="80" y2="146" stroke="#D8C8A6" stroke-width="2.5" stroke-linecap="round"/>
+            <circle cx="80" cy="146" r="2.5" fill="#E2BE63"/>
+          </svg>`,
+
+        // 小提琴首席 Concertmaster Violin
+        'EOC': `
+          <svg viewBox="0 0 160 160" class="w-full h-full drop-shadow-lg">
+            <defs>
+              <linearGradient id="violinAmber" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#F29F3D"/>
+                <stop offset="50%" stop-color="#C95B18"/>
+                <stop offset="100%" stop-color="#782808"/>
+              </linearGradient>
+            </defs>
+            <circle cx="80" cy="80" r="62" fill="none" stroke="#F3D98B" stroke-opacity="0.22" stroke-dasharray="6 3"/>
+            <g transform="rotate(28 80 80)">
+              <!-- 琴身 -->
+              <path d="M 80 54 C 66 54 62 65 67 74 C 70 79 69 83 64 88 C 56 96 58 118 80 118 C 102 118 104 96 96 88 C 91 83 90 79 93 74 C 98 65 94 54 80 54 Z" fill="url(#violinAmber)" stroke="#FCE59B" stroke-width="1.5"/>
+              <!-- 腮托 -->
+              <ellipse cx="71" cy="110" rx="7" ry="4.5" fill="#24130D"/>
+              <!-- F 孔 -->
+              <path d="M 71 83 C 69 87 70 93 68 96" fill="none" stroke="#3D1204" stroke-width="1.8" stroke-linecap="round"/>
+              <path d="M 89 83 C 91 87 90 93 92 96" fill="none" stroke="#3D1204" stroke-width="1.8" stroke-linecap="round"/>
+              <!-- 琴頸與琴頭 -->
+              <rect x="77.5" y="24" width="5" height="58" rx="1.5" fill="#24130D"/>
+              <circle cx="80" cy="21" r="4.5" fill="#C95B18" stroke="#FCE59B" stroke-width="1.2"/>
+              <!-- 琴橋與琴弦 -->
+              <rect x="75" y="93" width="10" height="2.5" fill="#FCE59B"/>
+              <line x1="78.5" y1="25" x2="78" y2="106" stroke="#FFFDF5" stroke-width="0.7"/>
+              <line x1="80" y1="25" x2="80" y2="106" stroke="#FFFDF5" stroke-width="0.7"/>
+              <line x1="81.5" y1="25" x2="82" y2="106" stroke="#FFFDF5" stroke-width="0.7"/>
+            </g>
+            <!-- 琴弓 Bow -->
+            <g transform="rotate(-35 80 80)">
+              <line x1="25" y1="92" x2="135" y2="92" stroke="#D48B3B" stroke-width="2.5" stroke-linecap="round"/>
+              <line x1="28" y1="95" x2="132" y2="95" stroke="#FCF9F2" stroke-width="1"/>
+            </g>
+          </svg>`,
+
+        // 大提琴 Cello
+        'IMS': `
+          <svg viewBox="0 0 160 160" class="w-full h-full drop-shadow-lg">
+            <defs>
+              <linearGradient id="celloChestnut" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#C96A32"/>
+                <stop offset="55%" stop-color="#873614"/>
+                <stop offset="100%" stop-color="#4A1907"/>
+              </linearGradient>
+            </defs>
+            <circle cx="80" cy="80" r="60" fill="none" stroke="#E2BE63" stroke-opacity="0.16"/>
+            <!-- 琴身 -->
+            <path d="M 80 48 C 64 48 59 61 65 72 C 69 78 68 83 62 89 C 52 99 54 123 80 123 C 106 123 108 99 98 89 C 92 83 91 78 95 72 C 101 61 96 48 80 48 Z" fill="url(#celloChestnut)" stroke="#F3D98B" stroke-width="1.5"/>
+            <!-- F 孔 -->
+            <path d="M 70 83 C 67 87 68 95 65 99" fill="none" stroke="#2B0B03" stroke-width="2" stroke-linecap="round"/>
+            <path d="M 90 83 C 93 87 92 95 95 99" fill="none" stroke="#2B0B03" stroke-width="2" stroke-linecap="round"/>
+            <!-- 指板與琴頭 -->
+            <rect x="77" y="21" width="6" height="60" rx="2" fill="#21110C"/>
+            <circle cx="80" cy="17" r="5" fill="#9E421B" stroke="#F3D98B" stroke-width="1.2"/>
+            <!-- 琴橋與弦 -->
+            <rect x="74" y="95" width="12" height="2.8" rx="1" fill="#F3D98B"/>
+            <polygon points="76.5,106 83.5,106 81.5,120 78.5,120" fill="#21110C"/>
+            <line x1="78.2" y1="22" x2="77.5" y2="106" stroke="#F6EFE0" stroke-width="0.8"/>
+            <line x1="79.4" y1="22" x2="79.2" y2="106" stroke="#F6EFE0" stroke-width="0.8"/>
+            <line x1="80.6" y1="22" x2="80.8" y2="106" stroke="#F6EFE0" stroke-width="0.8"/>
+            <line x1="81.8" y1="22" x2="82.5" y2="106" stroke="#F6EFE0" stroke-width="0.8"/>
+            <!-- 尾針 -->
+            <line x1="80" y1="123" x2="80" y2="142" stroke="#E2BE63" stroke-width="2.2" stroke-linecap="round"/>
+          </svg>`,
+
+        // 長笛 Flute
+        'IMC': `
+          <svg viewBox="0 0 160 160" class="w-full h-full drop-shadow-lg">
+            <defs>
+              <linearGradient id="silverFlute" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#FFFFFF"/>
+                <stop offset="50%" stop-color="#CBD5E1"/>
+                <stop offset="100%" stop-color="#64748B"/>
+              </linearGradient>
+            </defs>
+            <!-- 靈動氣流曲線 -->
+            <path d="M 24 95 Q 55 45 95 75 T 142 45" fill="none" stroke="#F3D98B" stroke-opacity="0.35" stroke-width="1.5" stroke-dasharray="3 3"/>
+            <path d="M 20 110 Q 65 65 105 90 T 145 65" fill="none" stroke="#93C5FD" stroke-opacity="0.3" stroke-width="1.5"/>
+            <g transform="rotate(-38 80 80)">
+              <!-- 長笛銀管 -->
+              <rect x="14" y="76" width="132" height="7" rx="3.5" fill="url(#silverFlute)" stroke="#F8FAFC" stroke-width="0.8"/>
+              <!-- 吹孔唇墊 -->
+              <ellipse cx="34" cy="75" rx="5" ry="2.2" fill="#E2E8F0" stroke="#475569" stroke-width="0.8"/>
+              <ellipse cx="34" cy="75" rx="2" ry="1" fill="#0F172A"/>
+              <!-- 音孔按鍵群 -->
+              <circle cx="56" cy="75" r="2.6" fill="#F8FAFC" stroke="#475569" stroke-width="0.8"/>
+              <circle cx="65" cy="75" r="2.6" fill="#F8FAFC" stroke="#475569" stroke-width="0.8"/>
+              <circle cx="74" cy="75" r="2.6" fill="#F8FAFC" stroke="#475569" stroke-width="0.8"/>
+              <circle cx="86" cy="75" r="2.6" fill="#F8FAFC" stroke="#475569" stroke-width="0.8"/>
+              <circle cx="95" cy="75" r="2.6" fill="#F8FAFC" stroke="#475569" stroke-width="0.8"/>
+              <circle cx="104" cy="75" r="2.6" fill="#F8FAFC" stroke="#475569" stroke-width="0.8"/>
+              <circle cx="116" cy="75" r="2.6" fill="#F8FAFC" stroke="#475569" stroke-width="0.8"/>
+              <circle cx="125" cy="75" r="2.6" fill="#F8FAFC" stroke="#475569" stroke-width="0.8"/>
+              <!-- 連桿細節 -->
+              <line x1="54" y1="72" x2="127" y2="72" stroke="#E2E8F0" stroke-width="1"/>
+            </g>
+          </svg>`,
+
+        // 中提琴 Viola
+        'IOS': `
+          <svg viewBox="0 0 160 160" class="w-full h-full drop-shadow-lg">
+            <defs>
+              <linearGradient id="violaWarm" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#E08244"/>
+                <stop offset="50%" stop-color="#A6461B"/>
+                <stop offset="100%" stop-color="#5E2009"/>
+              </linearGradient>
+            </defs>
+            <!-- 溫暖和聲光環 -->
+            <circle cx="80" cy="80" r="56" fill="none" stroke="#F3D98B" stroke-opacity="0.25" stroke-width="1.5"/>
+            <circle cx="80" cy="80" r="66" fill="none" stroke="#F3D98B" stroke-opacity="0.12" stroke-width="1"/>
+            <g transform="rotate(20 80 80)">
+              <!-- 圓潤中提琴琴身 -->
+              <path d="M 80 51 C 64 51 60 63 65 73 C 68 79 67 84 62 89 C 53 98 55 121 80 121 C 105 121 107 98 98 89 C 93 84 92 79 95 73 C 100 63 96 51 80 51 Z" fill="url(#violaWarm)" stroke="#F3D98B" stroke-width="1.5"/>
+              <!-- 腮托 -->
+              <ellipse cx="70" cy="112" rx="8" ry="5" fill="#26130C"/>
+              <!-- F 孔 -->
+              <path d="M 70 83 C 68 87 69 94 67 97" fill="none" stroke="#361004" stroke-width="1.9" stroke-linecap="round"/>
+              <path d="M 90 83 C 92 87 91 94 93 97" fill="none" stroke="#361004" stroke-width="1.9" stroke-linecap="round"/>
+              <!-- 琴頸與琴頭 -->
+              <rect x="77" y="22" width="6" height="60" rx="2" fill="#26130C"/>
+              <circle cx="80" cy="19" r="5" fill="#B55022" stroke="#F3D98B" stroke-width="1.2"/>
+              <!-- 琴橋與四弦 -->
+              <rect x="74" y="94" width="12" height="2.6" fill="#F3D98B"/>
+              <line x1="78.2" y1="23" x2="77.8" y2="108" stroke="#FCF9F2" stroke-width="0.75"/>
+              <line x1="79.4" y1="23" x2="79.2" y2="108" stroke="#FCF9F2" stroke-width="0.75"/>
+              <line x1="80.6" y1="23" x2="80.8" y2="108" stroke="#FCF9F2" stroke-width="0.75"/>
+              <line x1="81.8" y1="23" x2="82.2" y2="108" stroke="#FCF9F2" stroke-width="0.75"/>
+            </g>
+          </svg>`,
+
+        // 雙簧管 Oboe
+        'IOC': `
+          <svg viewBox="0 0 160 160" class="w-full h-full drop-shadow-lg">
+            <defs>
+              <linearGradient id="ebonyWood" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#3B3734"/>
+                <stop offset="50%" stop-color="#1C1917"/>
+                <stop offset="100%" stop-color="#090807"/>
+              </linearGradient>
+            </defs>
+            <!-- 音叉定音聲波圓環 -->
+            <circle cx="80" cy="80" r="62" fill="none" stroke="#F3D98B" stroke-opacity="0.24" stroke-width="1.5"/>
+            <g transform="rotate(32 80 80)">
+              <!-- 雙簧哨片 (Double Reed) -->
+              <rect x="78.8" y="14" width="2.4" height="12" rx="1" fill="#F3D98B"/>
+              <polygon points="78,14 82,14 81,20 79,20" fill="#D97706"/>
+              <!-- 黑檀木管身 -->
+              <rect x="76.5" y="26" width="7" height="96" rx="2" fill="url(#ebonyWood)" stroke="#57534E" stroke-width="0.8"/>
+              <!-- 喇叭口 -->
+              <path d="M 76.5 120 L 72 136 L 88 136 L 83.5 120 Z" fill="url(#ebonyWood)" stroke="#E2BE63" stroke-width="1.2"/>
+              <rect x="71.5" y="134" width="17" height="2.5" rx="1" fill="#E2BE63"/>
+              <!-- 銀色精密按鍵與音環 -->
+              <rect x="75.8" y="42" width="8.4" height="2" fill="#E2E8F0"/>
+              <rect x="75.8" y="76" width="8.4" height="2" fill="#E2E8F0"/>
+              <circle cx="80" cy="52" r="2.8" fill="#F8FAFC"/>
+              <circle cx="80" cy="60" r="2.8" fill="#F8FAFC"/>
+              <circle cx="80" cy="68" r="2.8" fill="#F8FAFC"/>
+              <circle cx="80" cy="85" r="3" fill="#F8FAFC"/>
+              <circle cx="80" cy="94" r="3" fill="#F8FAFC"/>
+              <circle cx="80" cy="103" r="3" fill="#F8FAFC"/>
+              <!-- 側邊銀鍵連桿 -->
+              <line x1="74" y1="48" x2="74" y2="108" stroke="#CBD5E1" stroke-width="1.3" stroke-linecap="round"/>
+              <line x1="86" y1="52" x2="86" y2="112" stroke="#CBD5E1" stroke-width="1.3" stroke-linecap="round"/>
+            </g>
+          </svg>`
+      };
+      return svgs[key] || svgs['EOS'];
+    }
+
+    /* ============================================================================
+       3. Web Audio API 音樂廳音色合成引擎（免外部音檔，純程式即時演奏）
+       ============================================================================ */
+    let audioCtx = null;
+    let soundEnabled = true;
+    let isPlayingMelody = false;
+
+    function initAudioContext() {
+      if (!audioCtx) {
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        if (AudioContextClass) {
+          audioCtx = new AudioContextClass();
+        }
+      }
+      if (audioCtx && audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+    }
+
+    function toggleSoundEffect() {
+      soundEnabled = !soundEnabled;
+      const onIcon = document.getElementById('icon-sound-on');
+      const offIcon = document.getElementById('icon-sound-off');
+      const label = document.getElementById('sound-label');
+      if (soundEnabled) {
+        onIcon.classList.remove('hidden');
+        offIcon.classList.add('hidden');
+        label.textContent = '音效開啟';
+        playClickNote(523.25);
+      } else {
+        onIcon.classList.add('hidden');
+        offIcon.classList.remove('hidden');
+        label.textContent = '音效靜音';
+      }
+    }
+
+    // 作答點擊時的輕柔豎琴/鋼琴撥弦反饋音
+    function playClickNote(freq = 440) {
+      if (!soundEnabled) return;
+      try {
+        initAudioContext();
+        if (!audioCtx) return;
+        const now = audioCtx.currentTime;
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, now);
+        gain.gain.setValueAtTime(0.001, now);
+        gain.gain.exponentialRampToValueAtTime(0.12, now + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.35);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(now);
+        osc.stop(now + 0.38);
+      } catch (e) {
+        // 忽略瀏覽器自動播放限制錯誤
+      }
+    }
+
+    // 播放專屬樂器代表旋律與和弦
+    function playInstrumentTheme(key, onCompleteCallback) {
+      const data = INSTRUMENTS[key];
+      if (!data) return;
+
+      try {
+        initAudioContext();
+        if (!audioCtx) return;
+
+        const now = audioCtx.currentTime;
+        const notes = data.notes;
+        const stepDuration = 0.28;
+
+        notes.forEach((freq, idx) => {
+          const startTime = now + idx * stepDuration;
+          const isLast = idx === notes.length - 1;
+          const duration = isLast ? 1.15 : 0.42;
+
+          const osc = audioCtx.createOscillator();
+          const subOsc = audioCtx.createOscillator();
+          const filter = audioCtx.createBiquadFilter();
+          const gain = audioCtx.createGain();
+
+          osc.type = data.wave;
+          osc.frequency.setValueAtTime(freq, startTime);
+
+          // 增添些微泛音厚度
+          subOsc.type = 'sine';
+          subOsc.frequency.setValueAtTime(freq * 0.5, startTime);
+
+          filter.type = 'lowpass';
+          filter.frequency.setValueAtTime(data.filterFreq, startTime);
+          filter.frequency.exponentialRampToValueAtTime(data.filterFreq * 0.65, startTime + duration);
+
+          gain.gain.setValueAtTime(0.001, startTime);
+          gain.gain.linearRampToValueAtTime(0.16, startTime + 0.05);
+          gain.gain.exponentialRampToValueAtTime(0.0008, startTime + duration);
+
+          osc.connect(filter);
+          subOsc.connect(filter);
+          filter.connect(gain);
+          gain.connect(audioCtx.destination);
+
+          osc.start(startTime);
+          subOsc.start(startTime);
+          osc.stop(startTime + duration + 0.05);
+          subOsc.stop(startTime + duration + 0.05);
+        });
+
+        const totalTimeMs = (notes.length * stepDuration + 0.85) * 1000;
+        if (onCompleteCallback) {
+          setTimeout(onCompleteCallback, totalTimeMs);
+        }
+      } catch (e) {
+        if (onCompleteCallback) onCompleteCallback();
+      }
+    }
+
+    /* ============================================================================
+       4. 遊戲狀態管理與互動邏輯
+       ============================================================================ */
+    let orderMode = 'random'; // 'random' | 'chapters'
+    let activeQuestions = [];
+    let currentIndex = 0;
+    let userAnswers = {}; // { questionId: 'A' | 'B' }
+    let currentResultKey = 'EOS';
+    let isTransitioning = false;
+
+    function setOrderMode(mode) {
+      orderMode = mode;
+      const btnRandom = document.getElementById('mode-random');
+      const btnChapters = document.getElementById('mode-chapters');
+      if (mode === 'random') {
+        btnRandom.className = 'px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition bg-gold-500 text-midnight-950 shadow';
+        btnChapters.className = 'px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition text-parchment-200 hover:text-gold-300';
+      } else {
+        btnChapters.className = 'px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition bg-gold-500 text-midnight-950 shadow';
+        btnRandom.className = 'px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition text-parchment-200 hover:text-gold-300';
+      }
+      playClickNote(587.33);
+    }
+
+    // 洗牌演算法 (Fisher-Yates)
+    function shuffleArray(array) {
+      const arr = [...array];
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    function switchView(viewId) {
+      ['view-home', 'view-quiz', 'view-result'].forEach(id => {
+        const el = document.getElementById(id);
+        if (id === viewId) {
+          el.classList.remove('hidden');
+          // 重新觸發動畫
+          el.classList.remove('animate-enter');
+          void el.offsetWidth;
+          el.classList.add('animate-enter');
+        } else {
+          el.classList.add('hidden');
+        }
+      });
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function goHome() {
+      if (!document.getElementById('view-quiz').classList.contains('hidden') && Object.keys(userAnswers).length > 0) {
+        confirmRestart();
+        return;
+      }
+      switchView('view-home');
+    }
+
+    function startQuiz() {
+      initAudioContext();
+      playClickNote(659.25);
+
+      userAnswers = {};
+      currentIndex = 0;
+      isTransitioning = false;
+
+      if (orderMode === 'random') {
+        activeQuestions = shuffleArray(QUESTIONS);
+      } else {
+        activeQuestions = [...QUESTIONS];
+      }
+
+      switchView('view-quiz');
+      renderQuestion();
+    }
+
+    function renderQuestion() {
+      const q = activeQuestions[currentIndex];
+      const total = activeQuestions.length;
+      const step = currentIndex + 1;
+      const percent = Math.round((step / total) * 100);
+
+      // 更新進度條與文字
+      document.getElementById('quiz-progress-text').textContent = `第 ${step} / ${total} 題`;
+      document.getElementById('quiz-percent-text').textContent = `(${percent}%)`;
+      document.getElementById('quiz-progress-bar').style.width = `${percent}%`;
+
+      // 更新樂章標籤
+      const badge = document.getElementById('quiz-chapter-badge');
+      if (orderMode === 'random') {
+        badge.textContent = `隨機交響模式・直覺作答`;
+      } else {
+        badge.textContent = q.chapter;
+      }
+
+      // 更新題幹與選項
+      document.getElementById('question-prompt').textContent = q.prompt;
+      document.getElementById('option-text-A').textContent = q.optionA;
+      document.getElementById('option-text-B').textContent = q.optionB;
+
+      // 恢復已選狀態樣式
+      const btnA = document.getElementById('option-btn-A');
+      const btnB = document.getElementById('option-btn-B');
+      btnA.classList.remove('selected');
+      btnB.classList.remove('selected');
+
+      const saved = userAnswers[q.id];
+      if (saved === 'A') btnA.classList.add('selected');
+      if (saved === 'B') btnB.classList.add('selected');
+
+      // 上一題按鈕狀態
+      document.getElementById('btn-prev').disabled = currentIndex === 0;
+    }
+
+    function selectAnswer(choice) {
+      if (isTransitioning) return;
+      isTransitioning = true;
+
+      const q = activeQuestions[currentIndex];
+      userAnswers[q.id] = choice;
+
+      // 視覺反饋與音階提示
+      const btnA = document.getElementById('option-btn-A');
+      const btnB = document.getElementById('option-btn-B');
+      btnA.classList.toggle('selected', choice === 'A');
+      btnB.classList.toggle('selected', choice === 'B');
+
+      playClickNote(choice === 'A' ? 523.25 : 587.33);
+
+      const container = document.getElementById('question-container');
+
+      setTimeout(() => {
+        if (currentIndex < activeQuestions.length - 1) {
+          container.style.opacity = '0';
+          setTimeout(() => {
+            currentIndex++;
+            renderQuestion();
+            container.style.opacity = '1';
+            isTransitioning = false;
+          }, 180);
+        } else {
+          // 全部作答完畢，計算並顯示結果
+          calculateAndShowResult();
+          isTransitioning = false;
+        }
+      }, 220);
+    }
+
+    function prevQuestion() {
+      if (currentIndex > 0 && !isTransitioning) {
+        playClickNote(440);
+        currentIndex--;
+        renderQuestion();
+      }
+    }
+
+    /* ============================================================================
+       5. 計分邏輯與結果呈現
+       ============================================================================ */
+    function calculateAndShowResult() {
+      let countE = 0, countI = 0;
+      let countM = 0, countO = 0;
+      let countS = 0, countC = 0;
+
+      QUESTIONS.forEach(q => {
+        const ans = userAnswers[q.id];
+        if (q.axis === 1) {
+          if (ans === 'A') countE++; else countI++;
+        } else if (q.axis === 2) {
+          if (ans === 'A') countM++; else countO++;
+        } else if (q.axis === 3) {
+          if (ans === 'A') countS++; else countC++;
+        }
+      });
+
+      const letter1 = countE > countI ? 'E' : 'I';
+      const letter2 = countM > countO ? 'M' : 'O';
+      const letter3 = countS > countC ? 'S' : 'C';
+
+      currentResultKey = `${letter1}${letter2}${letter3}`;
+      const info = INSTRUMENTS[currentResultKey];
+
+      // 填入結果文字
+      document.getElementById('res-code').textContent = info.code;
+      document.getElementById('res-type').textContent = info.type;
+      document.getElementById('res-instrument').textContent = info.instrument;
+      document.getElementById('res-reason').textContent = info.reason;
+      document.getElementById('res-encouragement').textContent = `「${info.encouragement}」`;
+
+      // 插入 SVG 插畫
+      document.getElementById('res-svg-container').innerHTML = getInstrumentSVG(currentResultKey);
+
+      // 填入特質標籤
+      const tagsEl = document.getElementById('res-tags');
+      tagsEl.innerHTML = info.tags.map(tag => `
+        <span class="px-3 py-1 rounded-full bg-midnight-900/10 border border-midnight-900/20 text-midnight-900 text-xs font-bold">
+          # ${tag}
+        </span>
+      `).join('');
+
+      // 更新三軸比例條
+      updateAxisBar(1, '外在 E', countE, '內在 I', countI);
+      updateAxisBar(2, '自我 M', countM, '他人 O', countO);
+      updateAxisBar(3, '穩定 S', countS, '變動 C', countC);
+
+      switchView('view-result');
+
+      // 自動輕奏該樂器主題音色（若音效開啟）
+      if (soundEnabled) {
+        setTimeout(() => {
+          playCurrentInstrumentSound();
+        }, 450);
+      }
+    }
+
+    function updateAxisBar(axisNum, leftName, leftCount, rightName, rightCount) {
+      const total = 9;
+      const leftPct = Math.round((leftCount / total) * 100);
+      const rightPct = 100 - leftPct;
+
+      const leftLabel = document.getElementById(`axis${axisNum}-left-label`);
+      const rightLabel = document.getElementById(`axis${axisNum}-right-label`);
+      const leftBar = document.getElementById(`axis${axisNum}-bar-left`);
+      const rightBar = document.getElementById(`axis${axisNum}-bar-right`);
+
+      leftLabel.textContent = `${leftName} · ${leftCount}題 (${leftPct}%)`;
+      rightLabel.textContent = `(${rightPct}%) ${rightCount}題 · ${rightName}`;
+
+      // 勝出的一方高亮金色文字
+      if (leftCount > rightCount) {
+        leftLabel.className = 'text-gold-300 font-bold';
+        rightLabel.className = 'text-parchment-300/75';
+      } else {
+        leftLabel.className = 'text-parchment-300/75';
+        rightLabel.className = 'text-gold-300 font-bold';
+      }
+
+      leftBar.style.width = `${leftPct}%`;
+      rightBar.style.width = `${rightPct}%`;
+    }
+
+    function playCurrentInstrumentSound() {
+      if (isPlayingMelody) return;
+      isPlayingMelody = true;
+
+      const playIcon = document.getElementById('play-icon-wrap');
+      const waveIcon = document.getElementById('play-wave-wrap');
+      const label = document.getElementById('play-btn-label');
+
+      playIcon.classList.add('hidden');
+      waveIcon.classList.remove('hidden');
+      waveIcon.classList.add('flex');
+      label.textContent = `正在演奏 ${INSTRUMENTS[currentResultKey].instrument}...`;
+
+      playInstrumentTheme(currentResultKey, () => {
+        playIcon.classList.remove('hidden');
+        waveIcon.classList.add('hidden');
+        waveIcon.classList.remove('flex');
+        label.textContent = '試聽樂器音色';
+        isPlayingMelody = false;
+      });
+    }
+
+    /* ============================================================================
+       6. 8 種樂器圖鑑 Modal、複製分享與 Toast 提示
+       ============================================================================ */
+    function openEncyclopedia() {
+      const grid = document.getElementById('encyclopedia-grid');
+      const keys = ['EMS', 'EMC', 'EOS', 'EOC', 'IMS', 'IMC', 'IOS', 'IOC'];
+
+      grid.innerHTML = keys.map(key => {
+        const item = INSTRUMENTS[key];
+        return `
+          <div class="bg-midnight-950/75 border border-gold-500/25 hover:border-gold-400/60 rounded-2xl p-4 sm:p-5 flex gap-4 items-center transition">
+            <div class="w-24 h-24 sm:w-28 sm:h-28 shrink-0 rounded-xl bg-midnight-900 border border-gold-500/30 p-2 flex items-center justify-center">
+              ${getInstrumentSVG(key)}
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2 flex-wrap mb-1">
+                <span class="font-display font-bold text-sm text-gold-400">${item.code}</span>
+                <span class="text-gold-500/50">|</span>
+                <span class="font-serif font-bold text-lg text-parchment-50">${item.type}</span>
+              </div>
+              <div class="text-xs font-bold text-gold-300/90 mb-2">
+                代表樂器：${item.instrument}（${item.reason}）
+              </div>
+              <p class="text-xs text-parchment-200/80 leading-relaxed mb-3">
+                ${item.encouragement}
+              </p>
+              <button onclick="playEncyclopediaSound('${key}', this)" class="px-3 py-1.5 rounded-lg bg-gold-500/15 hover:bg-gold-500/30 border border-gold-400/40 text-gold-300 text-xs font-medium transition inline-flex items-center gap-1.5">
+                <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                <span>試聽${item.instrument}音色</span>
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      document.getElementById('modal-encyclopedia').classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeEncyclopedia() {
+      document.getElementById('modal-encyclopedia').classList.add('hidden');
+      document.body.style.overflow = '';
+    }
+
+    function playEncyclopediaSound(key, btnEl) {
+      const span = btnEl.querySelector('span');
+      const originalText = span.textContent;
+      span.textContent = '演奏中...';
+      btnEl.disabled = true;
+
+      playInstrumentTheme(key, () => {
+        span.textContent = originalText;
+        btnEl.disabled = false;
+      });
+    }
+
+    function copyResultText() {
+      const info = INSTRUMENTS[currentResultKey];
+      const a1L = document.getElementById('axis1-left-label').textContent;
+      const a1R = document.getElementById('axis1-right-label').textContent;
+      const a2L = document.getElementById('axis2-left-label').textContent;
+      const a2R = document.getElementById('axis2-right-label').textContent;
+      const a3L = document.getElementById('axis3-left-label').textContent;
+      const a3R = document.getElementById('axis3-right-label').textContent;
+
+      const shareText = [
+        `🎻【你是哪一種樂器？價值觀類型量表】`,
+        `我的專屬樂器：${info.code} ${info.type}｜${info.instrument}（${info.reason}）`,
+        `「${info.encouragement}」`,
+        ``,
+        `📊 三軸比例分佈：`,
+        `• 價值驅力：${a1L} vs ${a1R}`,
+        `• 關係重心：${a2L} vs ${a2R}`,
+        `• 節奏偏好：${a3L} vs ${a3R}`
+      ].join('\n');
+
+      // 使用相容於 iframe 的 textarea + execCommand('copy')
+      const textArea = document.createElement('textarea');
+      textArea.value = shareText;
+      textArea.style.position = 'fixed';
+      textArea.style.left = '-9999px';
+      document.body.appendChild(textArea);
+      textArea.select();
+      try {
+        document.execCommand('copy');
+        showToast('已複製結果文字，快去分享給朋友吧！');
+        playClickNote(659.25);
+      } catch (err) {
+        showToast('複製失敗，請手動截圖分享結果卡！');
+      }
+      document.body.removeChild(textArea);
+    }
+
+    function showToast(message) {
+      const toast = document.getElementById('toast-message');
+      document.getElementById('toast-text').textContent = message;
+      toast.classList.remove('opacity-0', 'translate-y-4');
+      toast.classList.add('opacity-100', 'translate-y-0');
+
+      setTimeout(() => {
+        toast.classList.add('opacity-0', 'translate-y-4');
+        toast.classList.remove('opacity-100', 'translate-y-0');
+      }, 2800);
+    }
+
+    function confirmRestart() {
+      document.getElementById('modal-confirm').classList.remove('hidden');
+    }
+
+    function closeConfirmModal() {
+      document.getElementById('modal-confirm').classList.add('hidden');
+    }
+
+    function executeRestart() {
+      closeConfirmModal();
+      userAnswers = {};
+      switchView('view-home');
+    }
+
+    function restartQuizDirect() {
+      userAnswers = {};
+      switchView('view-home');
+    }
+
+    // 點擊遮罩關閉圖鑑視窗
+    document.getElementById('modal-encyclopedia').addEventListener('click', function(e) {
+      if (e.target === this) closeEncyclopedia();
+    });
+  </script>
+</body>
+</html>
